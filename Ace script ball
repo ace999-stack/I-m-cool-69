@@ -1,0 +1,34 @@
+-- Auto-Hit Script for Blade Ball
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local ballName = "BladeBall" -- Name of the ball in the game
+local hitRange = 15 -- The range within which the ball should be hit
+local debounce = false -- To prevent multiple hits at once
+local hitCooldown = 0.5 -- Cooldown time between hits
+
+-- Function to hit the ball
+local function hitBall()
+    local ball = game.Workspace:FindFirstChild(ballName)
+    if ball and ball:IsA("Part") then
+        local distance = (humanoidRootPart.Position - ball.Position).Magnitude
+        if distance <= hitRange and not debounce then
+            debounce = true
+            -- Assuming hitting the ball is done by a remote event
+            local hitEvent = game.ReplicatedStorage:FindFirstChild("HitBall")
+            if hitEvent and hitEvent:IsA("RemoteEvent") then
+                hitEvent:FireServer() -- Fire the event to hit the ball
+            end
+            wait(hitCooldown)
+            debounce = false
+        end
+    end
+end
+
+-- Continuously check for the ball and hit it if in range
+while true do
+    hitBall()
+    wait(0.1) -- Check every 0.1 seconds (adjust as needed)
+end
